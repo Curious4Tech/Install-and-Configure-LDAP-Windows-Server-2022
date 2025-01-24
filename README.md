@@ -38,16 +38,29 @@ LDAP is part of Active Directory Domain Services (AD DS). Ensure AD DS is instal
 To enable secure LDAP (LDAPS):
 
 1. **Obtain or create an SSL/TLS certificate** for the domain controller:
-   - Use a Certificate Authority (CA) or create a self-signed certificate.
-   - Ensure the certificate includes the Fully Qualified Domain Name (FQDN) of the domain controller.
+   - **Use a Certificate Authority (CA):** Request a certificate from an internal or external CA that includes the Fully Qualified Domain Name (FQDN) of the domain controller.
+     - Open **Server Manager**.
+     - Go to **Tools > Certification Authority**.
+     - Issue a certificate for the domain controller.
+   - **Create a self-signed certificate:**
+     - Open **PowerShell** and run the following command:
+       ```powershell
+       New-SelfSignedCertificate -DnsName "<FQDN>" -CertStoreLocation "Cert:\LocalMachine\My"
+       ```
+       Replace `<FQDN>` with the domain controller's FQDN.
 
-2. Install the certificate:
-   - Open **Certificates (Local Computer)** via the MMC console.
-   - Import the certificate into the **Personal** store.
+2. **Install the certificate:**
+   - Open **Run**, type `mmc`, and press **Enter**.
+   - In the MMC console, go to **File > Add/Remove Snap-in**.
+   - Select **Certificates**, then choose **Computer account** and click **Next**.
+   - Select **Local Computer** and click **Finish**.
+   - Navigate to **Certificates (Local Computer) > Personal > Certificates**.
+   - Right-click the **Personal** folder, choose **All Tasks > Import**, and follow the wizard to import the certificate.
 
-3. Restart the **Active Directory Domain Services** service:
-   - Open **Services** from the Start menu.
-   - Locate and restart the **Active Directory Domain Services** service.
+3. **Restart the Active Directory Domain Services service:**
+   - Open **Run**, type `services.msc`, and press **Enter**.
+   - Locate **Active Directory Domain Services** in the list.
+   - Right-click and select **Restart**.
 
 ---
 
@@ -105,4 +118,3 @@ Use an LDAP client to test access:
 ## Resources
 - [Microsoft Docs: Active Directory LDAP](https://docs.microsoft.com/en-us/windows-server/identity/ldap/)
 - [Active Directory Administration Tools](https://docs.microsoft.com/en-us/windows-server/identity/ad-ds/manage/active-directory-administration-tools)
-
