@@ -53,7 +53,7 @@ To enable secure LDAP (LDAPS):
 
 ![image](https://github.com/user-attachments/assets/67caf1bb-1b34-4124-9d4b-eacc5d6be295)
 
-     
+
 2. **Install the certificate:**
    - Open **Run (Win + R)**, type `mmc`, and press **Enter**.
 
@@ -83,7 +83,44 @@ To enable secure LDAP (LDAPS):
 
 ![image](https://github.com/user-attachments/assets/d9e46744-4ed7-4f5a-96cf-f4cb7b1386e1)
 
-2. **Restart the Active Directory Domain Services service:**
+4. Let's bind the certificate to LDAP over SSL. We'll need to:
+```
+## Get the certificate's thumbprint:
+$cert = Get-ChildItem Cert:\LocalMachine\My | Where-Object {$_.Subject -like "*SVR-CD.nextechiq.local*"}
+$thumbprint = $cert.Thumbprint
+
+## Create the LDAP SSL binding:
+netsh http add sslcert ipport=0.0.0.0:636 certhash=$thumbprint appid="{14e23291-fdb4-4f9d-b0d5-8c65f8db14d3}"
+The GUID "14e23291-fdb4-4f9d-b0d5-8c65f8db14d3" is actually an example GUID often used in Microsoft documentation for LDAP SSL bindings
+```
+![image](https://github.com/user-attachments/assets/575f70bf-fdc5-42ef-b270-640e4e1450f5)
+
+5. Let's generate a new, unique GUID specifically for your LDAP SSL certificate binding:
+```
+# Generate a new GUID
+$newGUID = [System.Guid]::NewGuid()
+Write-Host "Your new GUID is: $newGUID"
+```
+![image](https://github.com/user-attachments/assets/c8792407-eb55-4379-b75f-ef40165c3345)
+
+To delete the existing SSL certificate binding, we'll use the netsh command with the delete parameter. Here's how to do it:
+```
+# First, let's remove the existing binding
+netsh http delete sslcert ipport=0.0.0.0:636
+```
+![image](https://github.com/user-attachments/assets/7e17cbc6-53a0-4a98-be91-20cfe54290e2)
+
+6. Now  we can add our new binding with the new GUID
+```
+##binding with the new GUID
+netsh http add sslcert ipport=0.0.0.0:636 certhash=$thumbprint appid="{9eed3097-7121-4819-8181-dcd12a6c790a}"
+##show details
+netsh http show sslcert ipport=0.0.0.0:636
+```
+
+![image](https://github.com/user-attachments/assets/a902b43b-2296-43f0-8d44-f3fef1095998)
+
+7. **Restart the Active Directory Domain Services service:**
    - Open **Run (Win + R)**, type `services.msc`, and press **Enter**.
    - Locate **Active Directory Domain Services** in the list.
    
